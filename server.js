@@ -1,5 +1,5 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{WebSocketServer}=require('ws'),Game=require('./game.js');
-const FILES={'/':'index.html','/index.html':'index.html','/game.js':'game.js','/manifest.json':'manifest.json','/sw.js':'sw.js','/icon-192.png':'icon-192.png','/icon-512.png':'icon-512.png','/galick-ho.mp3':'galick-ho.mp3','/kamehameha_swf.mp3':'kamehameha_swf.mp3'};
+const FILES={'/':'index.html','/index.html':'index.html','/game.js':'game.js','/manifest.json':'manifest.json','/sw.js':'sw.js','/icon-192.png':'icon-192.png','/icon-512.png':'icon-512.png','/galick-ho.mp3':'galick-ho.mp3','/kamehameha_swf.mp3':'kamehameha_swf.mp3','/girino-spin.mp3':'girino-spin.mp3'};
 const T={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json','.png':'image/png','.mp3':'audio/mpeg'};
 const server=http.createServer((req,res)=>{
  const f=FILES[req.url.split('?')[0]];

@@ -267,7 +267,7 @@ function drawGi(f,a,b,sw,p){
    x.strokeStyle='#3a6fd8';x.fillStyle='#d6f8ff';x.lineWidth=1;x.beginPath();x.arc((px+nx)/2,(py+ny)/2,Math.max(1.5,w*.27),0,7);x.fill();x.stroke();
    px=nx;py=ny}}
  const arm2=q=>{x.strokeStyle=PK;x.lineWidth=6;x.beginPath();x.moveTo(0,-84);x.lineTo(q[0],q[1]);x.stroke()},glove=q=>{x.fillStyle=PU;x.beginPath();x.arc(q[0],q[1],6,0,7);x.fill()};
- arm2(b);glove(b);
+ arm2(b);glove(b);if((f.balls||0)>=2)drawPzBall(b[0]+3,b[1],4.5,f.ph*8);
  x.strokeStyle=TAN;x.lineWidth=10;x.beginPath();x.moveTo(-2,-50);x.lineTo(-10-sw,-4);x.moveTo(4,-50);x.lineTo(12+sw,-4);x.stroke();
  x.strokeStyle=PD;x.lineWidth=4;x.lineCap='butt';x.beginPath();x.moveTo(-11-sw*.5,-27);x.lineTo(-1-sw*.5,-27);x.moveTo(3+sw*.5,-27);x.lineTo(13+sw*.5,-27);x.stroke();x.lineCap='round';
  x.strokeStyle=BR;x.lineWidth=8;x.beginPath();x.moveTo(-12-sw,-3);x.lineTo(-3-sw,-3);x.moveTo(10+sw,-3);x.lineTo(20+sw,-3);x.moveTo(-10-sw,-11);x.lineTo(-10-sw,-3);x.moveTo(12+sw,-11);x.lineTo(12+sw,-3);x.stroke();
@@ -280,7 +280,8 @@ function drawGi(f,a,b,sw,p){
  x.fillStyle=HAIR;x.beginPath();x.moveTo(-11,-100);x.quadraticCurveTo(-10,-112,2,-112);x.quadraticCurveTo(12,-112,12,-103);x.lineTo(7,-106);x.lineTo(0,-104);x.lineTo(-6,-107);x.closePath();x.fill();
  x.fillStyle=HAT;x.beginPath();x.ellipse(1,-109,21,4.5,0,0,7);x.fill();x.beginPath();x.moveTo(-8,-109);x.quadraticCurveTo(-8,-124,2,-124);x.quadraticCurveTo(11,-124,11,-109);x.closePath();x.fill();
  x.fillStyle='#fff';x.fillRect(-8,-113,19,3);
- arm2(a);glove(a);
+ arm2(a);glove(a);if((f.balls||0)>=1)drawPzBall(a[0]+3,a[1],4.5,f.ph*8);
+ for(let k=0;k<2;k++){x.beginPath();x.arc(-4+k*10,-134,3.2,0,7);if(k<(f.balls||0)){x.fillStyle='#8dff3a';x.fill()}x.strokeStyle='#d6ffa0';x.lineWidth=1.2;x.stroke()}
  if(f.s==='power'&&p<.5)drawPzBall(a[0]+8,a[1]-1,4+p*20,f.ph*20);
  if(f.s==='acerto'&&p<.5)drawPzBall(a[0]+8,a[1]-1,4+p*20,f.ph*20);
  if(f.s==='torn'){const e=Math.min(1,p/.6);x.save();x.strokeStyle='rgba(226,244,250,.9)';x.shadowColor='#9fe6ff';x.shadowBlur=10;x.lineWidth=2;
@@ -612,6 +613,7 @@ function drawRB(cx,cy,r,rot){
  x.restore();x.save();x.fillStyle='rgba(255,255,255,.85)';x.beginPath();x.arc(cx-r*.3,cy-r*.3,r*.28,0,7);x.fill();x.restore()}
 function drawP(p){
  if(p.k===6){const t=performance.now()/1000,y=G-84;x.save();for(let q=3;q>=1;q--){x.globalAlpha=.18*(4-q);x.fillStyle='hsl('+((t*300+q*60)%360)+',95%,60%)';x.beginPath();x.arc(p.x-p.dir*q*9,y,7-q,0,7);x.fill()}x.restore();drawRB(p.x,y,9,t*20);return}
+ if(p.k===9){drawPzBall(p.x,p.y,8,performance.now()/40);return}
  if(p.k===8){const t=performance.now()/1000;x.save();for(let q=4;q>=1;q--){x.globalAlpha=.15*(5-q);x.fillStyle='#8dff3a';x.beginPath();x.arc(p.x-p.vx*q*.016,p.y-p.vy*q*.016,11-q*1.5,0,7);x.fill()}x.restore();drawPzBall(p.x,p.y,11,t*22);return}
  if(p.k===7){const t=performance.now()/1000,y=G-84;x.save();for(let q=3;q>=1;q--){x.globalAlpha=.16*(4-q);x.fillStyle='#8dff3a';x.beginPath();x.arc(p.x-p.dir*q*10,y,12-q*2,0,7);x.fill()}x.restore();drawPzBall(p.x,y,12,t*18);return}
  if(p.k===5){drawFB(p);return}
@@ -633,9 +635,10 @@ function drawP(p){
  x.fillStyle='#fff';x.beginPath();x.arc(p.x,y,17,0,7);x.fill();
  x.restore()}
 // --- som do Galcku Roo: toca ao usar, corta na hora quando acerta (ou erra/é interrompido)
-let AC=null,GB=null,GL=false,KB=null,KL=false;const KON=[false,false],KS=[null,null];function kStop(i){const n=KS[i];KS[i]=null;if(n){try{n.onended=null;n.stop(0)}catch(e){}}}const GS=[null,null],GON=[false,false];
+let AC=null,GB=null,GL=false,KB=null,KL=false,SB=null,SL=false;const SS=[null,null],SPV=['',''];const KON=[false,false],KS=[null,null];function kStop(i){const n=KS[i];KS[i]=null;if(n){try{n.onended=null;n.stop(0)}catch(e){}}}const GS=[null,null],GON=[false,false];
 function audioInit(){try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)()}if(AC.state==='suspended')AC.resume();
  if(!GB&&!GL){GL=true;fetch('galick-ho.mp3').then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no))).then(b=>{GB=b}).catch(()=>{GL=false})}
+ if(!SB&&!SL){SL=true;fetch('girino-spin.mp3').then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no))).then(b=>{SB=b}).catch(()=>{SL=false})}
  if(!KB&&!KL){KL=true;fetch('kamehameha_swf.mp3').then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no))).then(b=>{KB=b}).catch(()=>{KL=false})}}catch(e){}}
 ['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,audioInit,{passive:true}));
 function galStop(i){const n=GS[i];GS[i]=null;if(n){try{n.onended=null;n.stop(0)}catch(e){}}}
@@ -644,10 +647,13 @@ function sfx(){
   const f=S&&!S.over?S.f[i]:null;
   const act=!!f&&f.v&&(f.s==='power'||S.pr.some(q=>q.v&&q.ow===i));
   if(act&&!GON[i]&&f.s==='power'&&AC&&GB&&AC.state==='running'){galStop(i);const n=AC.createBufferSource();n.buffer=GB;n.connect(AC.destination);n.start(0);GS[i]=n;GON[i]=true}
-  else if(!act&&GON[i]){GON[i]=false;galStop(i)}
+  else if(!act&&GON[i]){GON[i]=false}
   {const kp=!!f&&f.ch===0&&!f.v&&(f.s==='power'||S.pr.some(q=>!q.k&&!q.v&&q.ow===i));
-   if(kp&&!KON[i]&&f.s==='power'&&AC&&KB&&AC.state==='running'){kStop(i);const n=AC.createBufferSource();n.buffer=KB;n.playbackRate.value=2;n.connect(AC.destination);n.start(0);KS[i]=n;KON[i]=true}
-   else if(!kp&&KON[i]){KON[i]=false;kStop(i)}}
+   if(kp&&!KON[i]&&f.s==='power'&&AC&&KB&&AC.state==='running'){kStop(i);const n=AC.createBufferSource();n.buffer=KB;n.connect(AC.destination);n.start(0);KS[i]=n;KON[i]=true}
+   else if(!kp&&KON[i]){KON[i]=false}}
+  {const st=f&&f.ch===11&&(f.s==='power'||f.s==='torn'||f.s==='acerto')?f.s:'';
+   if(st&&SPV[i]!==st&&AC&&SB&&AC.state==='running'){try{if(SS[i]){SS[i].onended=null;SS[i].stop(0)}}catch(e){}const n=AC.createBufferSource();n.buffer=SB;n.connect(AC.destination);n.start(0);SS[i]=n}
+   SPV[i]=st}
  }
  if(!S||S.over){for(let i=0;i<2;i++){GON[i]=false;galStop(i);KON[i]=false;kStop(i)}}}
 function loop(ts){
@@ -661,7 +667,7 @@ function loop(ts){
   {const fa=S.bn&&!(S.fu1&&S.fu1[me]);btn.fu.style.display=fa?'':'none';if(fa){const f0=S.f[me];btn.fu.style.opacity=canF(f0,S.bn[me])&&f0.en>=FU_COST&&S.bn[me].hp>0?1:.45}}
   const nb=$('nika'),sh=!S.over&&S.f[me].dy>0;nb.style.display=sh?'flex':'none';if(sh)nb.querySelector('small').textContent=Math.ceil(S.f[me].dy)+'s';
   $('hp1').style.width=S.f[0].hp/S.f[0].mhp*100+'%';$('hp2').style.width=S.f[1].hp/S.f[1].mhp*100+'%';$('en1').style.width=S.f[0].en+'%';$('en2').style.width=S.f[1].en+'%';
-  btn.pw.style.opacity=S.f[me].en>=chOf(S.f[me]).cost?1:.45;btn.sp.style.opacity=S.f[me].en>=chOf(S.f[me]).sp&&!(S.f[me].ch===0&&S.f[me].tr>0)&&!(S.f[me].ch===3&&S.f[me].din)?1:.45;btn.sp3.style.display=S.f[me].ch===10?'':'none';btn.sp3.style.opacity=S.f[me].en>=Game.SP3C?1:.45;const mf=S.f[me],hs=hasSp2(mf);btn.sp2.style.display=hs?'':'none';if(hs){const lb=mf.ch===1?'RASEN':mf.ch===3?'DIGOS SAUROS':mf.ch===11?'ACERTO':FZ(mf.ch)?'RAJADA':'RAIO DO CÉU';if(btn.sp2.dataset.l!==lb){btn.sp2.dataset.l=lb;btn.sp2.innerHTML=lb+'<small>Q</small>'}btn.sp2.style.opacity=mf.en>=sp2c(mf)?1:.45}}
+  btn.pw.style.opacity=S.f[me].en>=chOf(S.f[me]).cost?1:.45;btn.sp.style.opacity=S.f[me].en>=chOf(S.f[me]).sp&&!(S.f[me].ch===0&&S.f[me].tr>0)&&!(S.f[me].ch===3&&S.f[me].din)?1:.45;btn.sp3.style.display=S.f[me].ch===10?'':'none';btn.sp3.style.opacity=S.f[me].en>=Game.SP3C?1:.45;const mf=S.f[me],hs=hasSp2(mf);btn.sp2.style.display=hs?'':'none';if(hs){const lb=mf.ch===1?'RASEN':mf.ch===3?'DIGOS SAUROS':mf.ch===11?'ACERTO':FZ(mf.ch)?'RAJADA':'RAIO DO CÉU';if(btn.sp2.dataset.l!==lb){btn.sp2.dataset.l=lb;btn.sp2.innerHTML=lb+'<small>Q</small>'}btn.sp2.style.opacity=mf.en>=sp2c(mf)?1:.45}if(mf.ch===11&&(mf.balls||0)<1)btn.pw.style.opacity=btn.sp.style.opacity=btn.sp2.style.opacity=.45}
  else{$('nika').style.display='none';['hp1','hp2'].forEach(i=>$(i).style.width='100%');['en1','en2'].forEach(i=>$(i).style.width='0')}
  requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
