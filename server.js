@@ -10,22 +10,30 @@ const wss=new WebSocketServer({server});
 let wait=null;const matches=new Set();
 function leave(ws,notify){const m=ws.m;if(!m)return;ws.m=null;
  m.p.forEach(w=>{if(w!==ws&&w.m===m){w.m=null;if(notify&&w.readyState===1)w.send('{"t":"left"}')}});matches.delete(m)}
-function start(a,b){
- const m={p:[a,b],S:{f:[Game.mk(130,1,a.ch,0),Game.mk(350,-1,b.ch,1)],pr:[],over:0},end:0};
+function pair(a,b){
+ const m={p:[a,b],pick:[0,0],rdy:[false,false],S:null,end:0};
  a.m=b.m=m;a.inp={};b.inp={};matches.add(m);
- [a,b].forEach((w,i)=>w.send(JSON.stringify({t:'start',me:i,S:m.S})))}
+ [a,b].forEach((w,i)=>w.send(JSON.stringify({t:'match',me:i})))}
+function begin(m){
+ m.S={f:[Game.mk(130,1,m.pick[0],0),Game.mk(350,-1,m.pick[1],1)],pr:[],over:0};
+ m.p.forEach((w,i)=>{w.inp={};w.send(JSON.stringify({t:'start',me:i,S:m.S}))})}
+function tell(o,m,i){if(o&&o.readyState===1)o.send(JSON.stringify({t:'opp',ch:m.pick[i],ready:m.rdy[i]}))}
 wss.on('connection',ws=>{
  ws.inp={};
  ws.on('message',raw=>{let d;try{d=JSON.parse(raw)}catch{return}
-  if(d.t==='find'){leave(ws,false);if(wait===ws)wait=null;ws.ch=d.ch===1?1:0;
-   if(wait&&wait.readyState===1){const a=wait;wait=null;start(a,ws)}else{wait=ws;ws.send('{"t":"queued"}')}}
-  else if(d.t==='cancel'){if(wait===ws)wait=null}
-  else if(d.t==='in'&&ws.m&&d.i){const i=d.i;ws.inp.l=!!i.l;ws.inp.r=!!i.r;ws.inp.g=!!i.g;
-   for(const k of ['jb','hv','d','pw'])if(i[k])ws.inp[k]=1}});
+  const m=ws.m,i=m?m.p.indexOf(ws):-1,o=m&&m.p[1-i];
+  if(d.t==='find'){leave(ws,false);if(wait===ws)wait=null;
+   if(wait&&wait.readyState===1){const a=wait;wait=null;pair(a,ws)}else{wait=ws;ws.send('{"t":"queued"}')}}
+  else if(d.t==='cancel'){if(wait===ws)wait=null;leave(ws,true)}
+  else if(d.t==='pick'&&m&&!m.S){m.pick[i]=d.ch===1?1:0;m.rdy[i]=false;tell(o,m,i)}
+  else if(d.t==='ready'&&m&&!m.S){m.rdy[i]=true;tell(o,m,i);if(m.rdy[0]&&m.rdy[1])begin(m)}
+  else if(d.t==='in'&&m&&m.S&&d.i){const x=d.i;ws.inp.l=!!x.l;ws.inp.r=!!x.r;ws.inp.g=!!x.g;
+   for(const k of ['jb','hv','d','pw','sp','sp2'])if(x[k])ws.inp[k]=1}});
  ws.on('close',()=>{if(wait===ws)wait=null;leave(ws,true)})});
 setInterval(()=>{for(const m of matches){
+ if(!m.S)continue;
  const[a,b]=m.p;
- if(!m.S.over){Game.tick(m.S,a.inp,b.inp,1/60);for(const w of m.p)w.inp.jb=w.inp.hv=w.inp.d=w.inp.pw=0}
+ if(!m.S.over){Game.tick(m.S,a.inp,b.inp,1/60);for(const w of m.p)w.inp.jb=w.inp.hv=w.inp.d=w.inp.pw=w.inp.sp=w.inp.sp2=0}
  const s=JSON.stringify({t:'st',S:m.S});m.p.forEach(w=>w.readyState===1&&w.send(s));
  if(m.S.over&&!m.end)m.end=Date.now();
  if(m.end&&Date.now()-m.end>1500){m.p.forEach(w=>{if(w.m===m)w.m=null});matches.delete(m)}}},1000/60);
