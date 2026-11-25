@@ -30,12 +30,13 @@ wss.on('connection',ws=>{
   else if(d.t==='opts'&&m&&!m.S&&i===0){m.o={map:d.map===1?1:0,mus:d.mus?1:0};if(o&&o.readyState===1)o.send(JSON.stringify({t:'opts',map:m.o.map,mus:m.o.mus}))}
   else if(d.t==='ready'&&m&&!m.S&&(!m.t2||m.pick[i].length===2)){m.rdy[i]=true;tell(o,m,i);if(m.rdy[0]&&m.rdy[1])begin(m)}
   else if(d.t==='in'&&m&&m.S&&d.i){const x=d.i;ws.inp.l=!!x.l;ws.inp.r=!!x.r;ws.inp.g=!!x.g;
-   for(const k of ['jb','hv','d','pw','sp','sp2','nk','ju','tg','fu','sp3'])if(x[k])ws.inp[k]=1}});
+   for(const k of ['jb','hv','d','pw','sp','sp2','nk','ju','tg','fu','sp3'])if(x[k])ws.inp[k]=1;
+   if(x.cl&&m.S.cl)ws.inp.cl=Math.min(4,(ws.inp.cl||0)+1)}});
  ws.on('close',()=>{unq(ws);leave(ws,true)})});
 setInterval(()=>{for(const m of matches){
  if(!m.S)continue;
  const[a,b]=m.p;
- if(!m.S.over){Game.tick(m.S,a.inp,b.inp,1/60);for(const w of m.p)w.inp.jb=w.inp.hv=w.inp.d=w.inp.pw=w.inp.sp=w.inp.sp2=w.inp.nk=w.inp.ju=w.inp.tg=w.inp.fu=w.inp.sp3=0}
+ if(!m.S.over){Game.tick(m.S,a.inp,b.inp,1/60);for(const w of m.p)w.inp.jb=w.inp.hv=w.inp.d=w.inp.pw=w.inp.sp=w.inp.sp2=w.inp.nk=w.inp.ju=w.inp.tg=w.inp.fu=w.inp.sp3=w.inp.cl=0}
  const s=JSON.stringify({t:'st',S:m.S});m.p.forEach(w=>w.readyState===1&&w.send(s));
  if(m.S.over&&!m.end)m.end=Date.now();
  if(m.end&&Date.now()-m.end>1500){m.p.forEach(w=>{if(w.m===m)w.m=null});matches.delete(m)}}},1000/60);
