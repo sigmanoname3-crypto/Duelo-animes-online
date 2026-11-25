@@ -11,12 +11,12 @@ const waits={};const matches=new Set();
 function leave(ws,notify){const m=ws.m;if(!m)return;ws.m=null;
  m.p.forEach(w=>{if(w!==ws&&w.m===m){w.m=null;if(notify&&w.readyState===1)w.send('{"t":"left"}')}});matches.delete(m)}
 function pair(a,b,t2){
- const m={t2,p:[a,b],pick:t2?[[],[]]:[0,0],rdy:[false,false],S:null,end:0};
+ const m={t2,p:[a,b],pick:t2?[[],[]]:[0,0],rdy:[false,false],S:null,end:0,o:{map:0,mus:1}};
  a.m=b.m=m;a.inp={};b.inp={};matches.add(m);
  [a,b].forEach((w,i)=>w.send(JSON.stringify({t:'match',me:i})))}
 function begin(m){
  m.S=m.t2?{f:[Game.mkP(182,1,m.pick[0][0],0),Game.mkP(490,-1,m.pick[1][0],1)],bn:[Game.mkP(182,1,m.pick[0][1],0),Game.mkP(490,-1,m.pick[1][1],1)],pr:[],over:0}:{f:[Game.mkP(182,1,m.pick[0],0),Game.mkP(490,-1,m.pick[1],1)],pr:[],over:0};
- m.p.forEach((w,i)=>{w.inp={};w.send(JSON.stringify({t:'start',me:i,S:m.S}))})}
+ m.p.forEach((w,i)=>{w.inp={};w.send(JSON.stringify({t:'start',me:i,S:m.S,o:m.o}))})}
 function tell(o,m,i){if(o&&o.readyState===1)o.send(JSON.stringify({t:'opp',ch:m.pick[i],ready:m.rdy[i]}))}
 function unq(ws){if(ws.q&&waits[ws.q]===ws)waits[ws.q]=null;ws.q=null}
 wss.on('connection',ws=>{
@@ -27,6 +27,7 @@ wss.on('connection',ws=>{
    if(w&&w.readyState===1){waits[q]=null;pair(w,ws,!!d.t2)}else{waits[q]=ws;ws.send('{"t":"queued"}')}}
   else if(d.t==='cancel'){unq(ws);leave(ws,true)}
   else if(d.t==='pick'&&m&&!m.S){m.pick[i]=m.t2?(Array.isArray(d.ch)?[...new Set(d.ch.filter(c=>Number.isInteger(c)&&c>=0&&c<=7))].slice(0,2):[]):(d.ch===1?1:d.ch===2?2:d.ch===3?3:d.ch===4?4:d.ch===5?5:d.ch===6?6:d.ch===7?7:0);m.rdy[i]=false;tell(o,m,i)}
+  else if(d.t==='opts'&&m&&!m.S&&i===0){m.o={map:d.map===1?1:0,mus:d.mus?1:0};if(o&&o.readyState===1)o.send(JSON.stringify({t:'opts',map:m.o.map,mus:m.o.mus}))}
   else if(d.t==='ready'&&m&&!m.S&&(!m.t2||m.pick[i].length===2)){m.rdy[i]=true;tell(o,m,i);if(m.rdy[0]&&m.rdy[1])begin(m)}
   else if(d.t==='in'&&m&&m.S&&d.i){const x=d.i;ws.inp.l=!!x.l;ws.inp.r=!!x.r;ws.inp.g=!!x.g;
    for(const k of ['jb','hv','d','pw','sp','sp2','nk','ju','tg','fu','sp3'])if(x[k])ws.inp[k]=1}});

@@ -57,7 +57,7 @@ function strike(f,o,S){
  if(f.s==='raio'){S.pr.push({x:f.x,y:20,dir:f.dir,ow:f.i,k:3,m:mul,life:5});return}
  if(f.s==='rasen'){S.pr.push({x:f.x+f.dir*40,dir:f.dir,ow:f.i,k:2,m:mul});return}
  if(f.s==='throw'){S.pr.push({x:f.x+f.dir*30,dir:f.dir,ow:f.i,k:1,m:mul});return}
- if(f.s==='power'){if(f.ch===BR){S.pr.push({x:f.x+f.dir*28,x0:f.x+f.dir*28,dir:f.dir,ow:f.i,k:13,m:mul*BRB_M});return}if(f.ch===GI){S.pr.push({x:f.x+f.dir*30,dir:f.dir,ow:f.i,k:7});return}if(FZ(f.ch)){S.pr.push({x:f.x+f.dir*34,dir:f.dir,ow:f.i,k:5,fz:f.ch,m:mul});return}if(f.ch===3){S.pr.push({x:f.x+f.dir*30,dir:f.dir,ow:f.i,k:4});return}if(f.ch===2){if(o.y<AIR&&(o.x-f.x)*f.dir>0&&Math.abs(o.x-f.x)<BAZR)hurt(o,BAZ*mul,f,1);return}if(f.ch===1)f.orb=6;else S.pr.push({x:f.x+f.dir*34,dir:f.dir,ow:f.i,m:mul*(f.ch===0?ZA:1),v:f.v?1:0});return}
+ if(f.s==='power'){if(f.ch===BR){let L=f.dir>0?W-f.x:f.x;if((o.x-f.x)*f.dir>0&&o.y<AIR){L=Math.abs(o.x-f.x);hurt(o,BEAM*mul*BRB_M,f,1);(S.ex||(S.ex=[])).push({x:o.x,t:0})}f.lzl=L;return}if(f.ch===GI){S.pr.push({x:f.x+f.dir*30,dir:f.dir,ow:f.i,k:7});return}if(FZ(f.ch)){S.pr.push({x:f.x+f.dir*34,dir:f.dir,ow:f.i,k:5,fz:f.ch,m:mul});return}if(f.ch===3){S.pr.push({x:f.x+f.dir*30,dir:f.dir,ow:f.i,k:4});return}if(f.ch===2){if(o.y<AIR&&(o.x-f.x)*f.dir>0&&Math.abs(o.x-f.x)<BAZR)hurt(o,BAZ*mul,f,1);return}if(f.ch===1)f.orb=6;else S.pr.push({x:f.x+f.dir*34,dir:f.dir,ow:f.i,m:mul*(f.ch===0?ZA:1),v:f.v?1:0});return}
  const orb=f.s==='jab'&&f.orb>0,r=orb?76:f.s==='jab'?66:80;
  if(orb)f.orb=0;
  if((o.x-f.x)*f.dir>0&&Math.abs(o.x-f.x)<r){if(orb)hurt(o,ORB*mul,f,1,1);else{const ok=f.ch===3&&hitOk(o,f);hurt(o,(f.s==='jab'?4:7)*mul*(f.ch===0?ZP:1),f);if(ok)dinoHit(f,o,S)}if(f.ch===2&&f.haki<=0&&++f.hk>=4){f.hk=0;f.haki=HAKI_T}}}
@@ -108,16 +108,16 @@ function ippu(f,o,dt,S){
   if((f.t<.2||f.t>=.28&&f.t<.48)&&d>44)f.x+=f.dir*420*dt;
   if(!f.up&&f.t>=.55){f.up=1;
    if(front&&d<95&&!safe){f.cb=1;o.g=false;o.st=STUN_T;o.s='idle';o.t=0;o.orb=0;o.done=false;o.pt=o.pt||0;
-    hurt(o,10*mul,f);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}
+    hurt(o,10*mul,f,0,1);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}
    else{f.s='idle';f.t=0;f.up=0;f.cb=0;f.pn=0;return}}
   if(f.cb)while((f.pn||0)<5&&f.t>=.75+.1*(f.pn||0)){f.pn=(f.pn||0)+1;
-   if(o.st>0&&d<120){hurt(o,8*mul,f);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}}}
+   if(o.st>0&&d<120){hurt(o,8*mul,f,0,1);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}}}
  else if(f.s==='ibpunch'){if(f.t<.28&&d>46)f.x+=f.dir*420*dt}
  else if(f.s==='gazela'){
   if(f.t<.3){f.inv=Math.max(f.inv,.06);if(d>40)f.x+=f.dir*40*dt}
   else if(f.t<.42&&d>40)f.x+=f.dir*520*dt;
   if(!f.up&&f.t>=.38){f.up=1;
-   if(front&&d<100&&!safe){hurt(o,40*mul,f);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}}}}
+   if(front&&d<100&&!safe){hurt(o,40*mul,f,0,1);(S.ex||(S.ex=[])).push({x:o.x,t:0,k:5})}}}}
 function aiI(f,o,dt){
  const i={},d=Math.abs(f.x-o.x),tw=o.x>f.x?'r':'l',aw=tw==='r'?'l':'r',C=CH[6];
  f.ct=(f.ct||0)-dt;
@@ -217,6 +217,7 @@ function tick(S,a,b,dt){
   f.x+=f.dir*DRAG_SPD*dt;const wall=f.x<=28||f.x>=W-28;f.x=Math.max(28,Math.min(W-28,f.x));t.x=Math.max(28,Math.min(W-28,f.x-f.dir*DRAG_BACK));t.y=0;t.vy=0;
   f.gc=(f.gc||0)+dt;while(f.gc>=DRAG_TICK){f.gc-=DRAG_TICK;hurt(t,DRAG_DMG,f,1,1);(S.ex||(S.ex=[])).push({x:t.x,t:0,k:5})}
   if(wall||f.t>=DRAG_T){t.gr=0;hurt(t,DRAG_SLAM,f,1,1);t.s='hit';t.t=0;t.done=false;t.kv=f.dir*450;t.vy=320;t.y=.01;f.s='idle';f.t=0;(S.ex||(S.ex=[])).push({x:t.x,t:0,k:9,c:11})}}
+ for(const f of S.f)if(f.gr>0&&S.f[1-f.i].s!=='drag')f.gr=0;
  for(const f of S.f)if(f.s==='beatdown'){const t=S.f[1-f.i];
   if(f.hp<=0||t.hp<=0||!(t.bd>0)){t.bd=0;f.s='idle';f.t=0;continue}
   t.bdr=Math.max(0,BD_T-f.t);while(f.bdn<BD_T&&f.t>=f.bdn+1){f.bdn++;hurt(t,BD_DMG,f,1,1);(S.ex||(S.ex=[])).push({x:t.x,t:0,k:5})}
@@ -229,7 +230,7 @@ function tick(S,a,b,dt){
  for(const t of S.f)if(t.bd>0){const a=S.f[1-t.i];if(a.s!=='beatdown'&&a.s!=='ibeat')t.bd=0}
  for(const f of S.f)if(f.tw>0)f.hp=Math.max(0,f.hp-TORN_DPS*zr(f)*dt);
  const d=e.x-p.x;if(Math.abs(d)<34&&!crossing(p)&&!crossing(e)){const s=Math.sign(d)||1,m=(34-Math.abs(d))/2;p.x-=s*m;e.x+=s*m}
- S.mn=(S.mn||[]).filter(m=>{const t=S.f[1-m.ow];if((m.t-=dt)<=0)return false;m.mv=0;if(m.bt>0)m.bt-=dt;if(m.cd>0)m.cd-=dt;if(t.hp<=0)return true;
+ S.mn=(S.mn||[]).filter(m=>{const t=S.f[1-m.ow];if((m.t-=dt)<=0)return false;m.mv=0;if(m.bt>0)m.bt-=dt;if(m.cd>0)m.cd-=dt;if(t.hp<=0||S.f[m.ow].gr>0||S.f[m.ow].bd>0)return true;
   const dx=t.x-m.x;m.dir=dx>=0?1:-1;
   if(Math.abs(dx)>m.sd){m.x+=m.dir*MN_SPD*dt;m.mv=1}
   else if(m.cd<=0&&!(t.y>=AIR)){m.cd=MN_CD;m.bt=.3;hurt(t,MN_DMG,{x:m.x,dir:m.dir,en:0,tr:0},0,1);(S.ex||(S.ex=[])).push({x:t.x,t:0,k:5})}
@@ -237,6 +238,7 @@ function tick(S,a,b,dt){
  S.ex=(S.ex||[]).filter(e=>(e.t+=dt)<(e.k===8?1.2:e.k===11?.9:e.k===12?.7:e.k===15?.7:.4));
  S.pr=S.pr.filter(q=>{
   const t=S.f[1-q.ow],air=t.y>=AIR;
+  if(S.f[q.ow].gr>0||S.f[q.ow].bd>0)return true;
   if(q.k===1){q.x+=q.dir*200*dt;
    if((Math.abs(q.x-t.x)<28&&!air)||q.x<20||q.x>W-20){S.ex.push({x:q.x,t:0});if(Math.abs(q.x-t.x)<50&&!air)hurt(t,SHU*(q.m||1),S.f[q.ow],1,1);return false}
    return true}
